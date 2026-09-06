@@ -11,9 +11,27 @@ const display = Jockey_One({
   display: "swap",
 });
 
+/** Your live domain — used to turn image paths into the absolute URLs link previews need. */
+const SITE_URL = "https://your-site.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Your Name",
-  description: "Content creator portfolio",
+  metadataBase: new URL(SITE_URL),
+  title: "Kan Htet San",
+  description: "Content Creator",
+  openGraph: {
+    title: "Kan Htet San",
+    description: "Content Creator",
+    url: SITE_URL,
+    siteName: "Kan Htet San",
+    images: [{ url: "/person.webp", width: 1400, height: 1050, alt: "Kan Htet San" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kan Htet San",
+    description: "Content Creator",
+    images: ["/person.webp"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
