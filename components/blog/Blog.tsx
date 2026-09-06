@@ -54,7 +54,7 @@ export default function Blog() {
       className="mx-auto max-w-[44rem] px-5 pb-[12svh] pt-[14svh] text-black lg:px-0 lg:pt-[16svh]"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
     >
-      <h2 className="font-sans text-5xl leading-none tracking-[0.02em] lg:text-7xl">Blog</h2>
+      <h2 className="font-sans text-5xl leading-none tracking-[0.02em] lg:text-7xl">About Me</h2>
 
       <div className="mt-14 space-y-24 lg:mt-20 lg:space-y-32">
         {POSTS.map((post) => (
