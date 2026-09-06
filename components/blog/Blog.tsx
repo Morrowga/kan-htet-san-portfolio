@@ -26,16 +26,16 @@ export const POSTS: {
     image1: "/blog/2.png",
     body:
       "Most of it is handheld. A gimbal looks smoother, but the small shake is what makes a phone clip feel like you were there — and that feeling is the whole point.",
-    image2: "/blog/2-b.png",
+    image2: "/blog/2.png",
   },
   {
     title: "Where AI actually helps an edit",
     intro:
       "Not in the cut. Generation tools earn their place in the gaps — a missing establishing shot, a B-roll transition I couldn't film, a texture behind a title. The edit still has to carry the story on its own.",
-    image1: "/blog/3-a.png",
+    image1: "/blog/3.png",
     body:
       "The test is simple: if a generated shot is the thing people remember, it was doing too much. It should disappear into the piece.",
-    image2: "/blog/3-b.png",
+    image2: "/blog/3.png",
   },
 ];
 
