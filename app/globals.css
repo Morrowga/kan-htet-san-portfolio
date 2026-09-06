@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: var(--font-display), "Jockey One", system-ui, sans-serif;
+}
