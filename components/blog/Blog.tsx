@@ -17,7 +17,7 @@ export const POSTS: {
     image1: "/blog/1.png",
     body:
       "The last ten seconds get the most work. They're the difference between a scroll-past and a rewatch, so I rebuild the ending three or four times before the timeline feels done.",
-    image2: "/blog/1-b.png",
+    image2: "/blog/1.png",
   },
   {
     title: "Shooting Chiang Mai at 6am",

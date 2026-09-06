@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   CommentIcon,
@@ -62,6 +62,62 @@ interface ReelsProps {
  * Only the current reel and its neighbours keep a live <video>; the rest are
  * black, so 14 reels cost about three decoders, not fourteen.
  */
+
+/**
+ * iOS-safe autoplaying video: sets `muted` as a real attribute, starts
+ * playback explicitly, and shows a spinner until the first frame is playing.
+ */
+function ReelVideo({ src }: { src: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.muted = true;
+    el.defaultMuted = true;
+    el.setAttribute("muted", "");
+    el.setAttribute("playsinline", "");
+    el.setAttribute("webkit-playsinline", "");
+    const start = () => el.play().catch(() => {});
+    const onPlaying = () => setReady(true);
+    start();
+    el.addEventListener("loadedmetadata", start);
+    el.addEventListener("canplay", start);
+    el.addEventListener("playing", onPlaying);
+    return () => {
+      el.removeEventListener("loadedmetadata", start);
+      el.removeEventListener("canplay", start);
+      el.removeEventListener("playing", onPlaying);
+    };
+  }, [src]);
+
+  return (
+    <>
+      <video
+        ref={ref}
+        className="absolute inset-0 h-full w-full object-cover"
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      />
+      {/* Loading indicator — fades out once the clip is playing */}
+      <div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black transition-opacity duration-500"
+        style={{ opacity: ready ? 0 : 1 }}
+      >
+        <span
+          className="block animate-spin rounded-full border-white/25 border-t-white"
+          style={{ width: "9cqw", height: "9cqw", borderWidth: "0.7cqw" }}
+        />
+      </div>
+    </>
+  );
+}
+
 export default function Reels({ clock = "21:46" }: ReelsProps) {
   const n = REELS.length;
   const [tick, setTick] = useState(0); // counts up forever
@@ -115,17 +171,7 @@ export default function Reels({ clock = "21:46" }: ReelsProps) {
           const live = Math.abs(i - index) <= 1;
           return (
             <div key={i} className="relative h-full w-full overflow-hidden bg-black">
-              {live && (
-                <video
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={REEL_VIDEO_SRC}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                />
-              )}
+              {live && <ReelVideo src={REEL_VIDEO_SRC} />}
 
               {/* Legibility gradients */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-[28%] bg-gradient-to-b from-black/60 to-transparent" />
