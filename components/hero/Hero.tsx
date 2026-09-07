@@ -129,7 +129,7 @@ export default function Hero() {
           <p className="pointer-events-auto text-xs tracking-wide text-foreground/40">
             © {new Date().getFullYear()}{" "}
             
-            <a href="https://thihaaung.com"
+            <a href="https://thihaeung.com"
               className="underline decoration-foreground/30 underline-offset-2 transition-colors hover:text-foreground/70"
             >
               thihaaung.com
