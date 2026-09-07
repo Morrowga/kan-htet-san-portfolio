@@ -51,9 +51,6 @@ export default function Hero() {
   const textOpacity = useTransform(scrollY, [EXIT_END * vh * 0.3, EXIT_END * vh], [1, 0]);
 
   const blogOpacity = useTransform(scrollY, [BLOG_IN_START * vh, BLOG_IN_END * vh], [0, 1]);
-  // Only let the Blog layer receive clicks once it's actually visible —
-  // otherwise, while opacity is 0, it silently sits on top of the hero UI
-  // (Tools, Project button, etc.) at z-30 and swallows every click.
   const blogPointerEvents = useTransform(blogOpacity, (v) => (v > 0.05 ? "auto" : "none"));
   const wallLift = useTransform(scrollY, [BLOG_IN_START * vh, BLOG_IN_END * vh], [0, 0.55]);
   const blogY = useTransform(
@@ -126,6 +123,20 @@ export default function Hero() {
             <Blog />
           </div>
         </motion.div>
+
+        {/* ── Desktop-only copyright footer ── */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 hidden justify-center lg:flex">
+          <p className="pointer-events-auto text-xs tracking-wide text-foreground/40">
+            © {new Date().getFullYear()}{" "}
+            
+            <a href="https://thihaaung.com"
+              className="underline decoration-foreground/30 underline-offset-2 transition-colors hover:text-foreground/70"
+            >
+              thihaaung.com
+            </a>
+            . All rights reserved.
+          </p>
+        </div>
       </motion.section>
     </div>
   );
