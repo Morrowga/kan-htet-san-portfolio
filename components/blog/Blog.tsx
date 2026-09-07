@@ -114,7 +114,7 @@ export default function Blog() {
       <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-black/70 lg:text-base">
         
         <a href={`mailto:${CONTACT.email}`}
-          className="flex items-center gap-1.5 transition-colors hover:text-black"
+          className="flex items-center gap-1.5 underline underline-offset-2 transition-colors hover:text-black"
         >
           <Mail size={16} strokeWidth={1.75} />
           <span>{CONTACT.email}</span>
@@ -123,7 +123,7 @@ export default function Blog() {
         <a href={`https://wa.me/${CONTACT.whatsappNumber}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 transition-colors hover:text-black"
+          className="flex items-center gap-1.5 underline underline-offset-2 transition-colors hover:text-black"
         >
           <MessageCircle size={16} strokeWidth={1.75} />
           <span>{CONTACT.whatsappDisplay}</span>
@@ -132,7 +132,7 @@ export default function Blog() {
         <a href={`https://instagram.com/${CONTACT.instagramHandle}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 transition-colors hover:text-black"
+          className="flex items-center gap-1.5 underline underline-offset-2 transition-colors hover:text-black"
         >
           <MessageCircle size={16} strokeWidth={1.75} />
           <span>{CONTACT.instagramHandle}</span>
@@ -150,45 +150,6 @@ export default function Blog() {
           </article>
         ))}
       </div>
-
-      {mounted &&
-        createPortal(
-          <AnimatePresence>
-            {showCTA && (
-              <motion.a
-                href={DRIVE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-[999] flex select-none items-center gap-2 overflow-hidden whitespace-nowrap"
-                style={{
-                  padding: "0.9rem 1.6rem",
-                  borderRadius: "999px",
-                  background:
-                    "linear-gradient(160deg, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0.13) 45%, rgba(255,255,255,0.06) 100%)",
-                  backdropFilter: "blur(18px) saturate(1.15)",
-                  WebkitBackdropFilter: "blur(18px) saturate(1.15)",
-                  boxShadow:
-                    "inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -1px 0 rgba(0,0,0,0.08), inset 1px 0 0 rgba(255,255,255,0.35), 0 0.9vw 1.8vw -0.5vw rgba(0,0,0,0.35)",
-                  border: "1px solid rgba(255,255,255,0.28)",
-                  fontFamily:
-                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                  fontSize: "0.95rem",
-                  fontWeight: 600,
-                  color: "#111",
-                }}
-                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.94 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.94 }}
-                transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
-                whileHover={reduceMotion ? undefined : { scale: 1.05 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-              >
-                <span>Projects</span>
-              </motion.a>
-            )}
-          </AnimatePresence>,
-          document.body
-        )}
     </div>
   );
 }

@@ -40,7 +40,7 @@ export default function Captions({ className = "", textSize = "clamp(0.95rem, 1.
 
   return (
     <div
-      className={`pointer-events-none select-none font-normal leading-snug tracking-[0] text-black/85 ${className}`}
+      className={`pointer-events-none select-none font-normal leading-snug tracking-[0] text-[#302f2c] ${className}`}
       style={{
         fontSize: textSize,
         fontFamily: 'var(--font-display), "Jockey One", system-ui, sans-serif',
