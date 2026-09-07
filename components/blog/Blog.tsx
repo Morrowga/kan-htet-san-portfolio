@@ -62,7 +62,7 @@ const CONTACT = {
   email: "kanhtetsan@gmail.com",
   whatsappDisplay: "+660629295237",
   whatsappNumber: "660629295237", // digits only, for the wa.me link
-  instagramHandle: "I_kan_do_it",
+  instagramHandle: "i__kan__do__it",
 };
 
 /**
