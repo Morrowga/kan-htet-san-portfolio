@@ -98,8 +98,11 @@ export default function Hero() {
 
         {/* Tools — fade out flat, no direction */}
         <motion.div className="pointer-events-none absolute inset-0 z-20" style={{ opacity: toolsOpacity }}>
-          {/* Desktop — in the open wall space under the captions, between portrait and phone */}
-          <Tools className="pointer-events-auto absolute left-[26vw] top-[47svh] hidden lg:block" />
+          {/* Desktop — Tools plus the scroll hint, grouped so the button centers
+              under Tools' actual width, wherever Tools is positioned. */}
+          <div className="absolute left-[26vw] top-[47svh] hidden w-max flex-col items-center gap-4 lg:flex">
+            <Tools className="pointer-events-auto" />
+          </div>
 
           {/* Mobile — inside a thought bubble, tail aimed at the portrait below-left */}
           <ThoughtBubble className="pointer-events-auto absolute left-5 right-5 top-[20svh] lg:hidden" delay={1.4}>

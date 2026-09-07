@@ -17,32 +17,65 @@ import {
   VerifiedIcon,
 } from "./icons";
 
-/** One clip, looped in every reel. Drop the real file at public/tv-mp4/show.mp4. */
-export const REEL_VIDEO_SRC = "/tv-mp4/show.mp4";
-
-/** How long each reel stays on screen before the feed scrolls to the next. */
+/** How long each reel STAYS VISIBLE (i.e. is actually playing) before the
+ *  feed scrolls to the next — counted from when its video starts playing,
+ *  not from when it was requested. */
 export const REEL_DURATION_MS = 3000;
 
-/** Handle shown on every reel. */
-export const HANDLE = "kanhtetsan";
+/** Safety net: if a reel's video never fires "playing" (slow network, bad
+ *  file, etc.), advance anyway after this long so the feed can't stall. */
+const READY_FALLBACK_MS = 8000;
 
-/** One entry per reel — 14 of them. Edit captions and counts freely. */
-export const REELS: { caption: string; likes: string; comments: string; shares: string }[] = [
-  { caption: "POV: the edit finally clicks at 3am", likes: "2M", comments: "6,965", shares: "344K" },
-  { caption: "Every cut has a reason. Here's one", likes: "1.4M", comments: "4,120", shares: "212K" },
-  { caption: "Chiang Mai, 6:12am, one take", likes: "980K", comments: "2,310", shares: "97K" },
-  { caption: "Before / after colour. Same footage", likes: "1.1M", comments: "3,480", shares: "150K" },
-  { caption: "The transition nobody asked for", likes: "3.2M", comments: "9,801", shares: "512K" },
-  { caption: "100 videos in. Still learning", likes: "760K", comments: "1,905", shares: "68K" },
-  { caption: "Sound design does the heavy lifting", likes: "1.7M", comments: "5,220", shares: "290K" },
-  { caption: "Shot on a phone. Edited on a laptop", likes: "2.6M", comments: "7,414", shares: "401K" },
-  { caption: "Slow zoom. Hold. Cut on the beat", likes: "890K", comments: "2,077", shares: "88K" },
-  { caption: "Client said 'make it feel cinematic'", likes: "1.9M", comments: "6,102", shares: "333K" },
-  { caption: "Rainy season B-roll dump", likes: "640K", comments: "1,556", shares: "52K" },
-  { caption: "Timeline tour. 43 layers, no regrets", likes: "1.3M", comments: "3,903", shares: "178K" },
-  { caption: "Night market at 240fps", likes: "2.2M", comments: "6,640", shares: "365K" },
-  { caption: "That's the reel. Follow for the next one", likes: "4.1M", comments: "12,280", shares: "690K" },
+/** The two profiles that appear in the feed. */
+const PROFILES = {
+  p1: {
+    handle: "trevourfosterstudio",
+    verified: true,
+    image: "/profile/1.webp",
+  },
+  p2: {
+    handle: "I_kan_do_it",
+    verified: false,
+    image: "/profile/2.webp",
+  },
+};
+
+/** The 4 real posts. Video 1 & 2 belong to profile 1, video 3 & 4 to profile 2. */
+const POSTS = [
+  { video: "/tv-mp4/1.mp4", caption: "Glazing Art", profile: PROFILES.p1 },
+  { video: "/tv-mp4/2.mp4", caption: "Kickstarter", profile: PROFILES.p1 },
+  { video: "/tv-mp4/3.mp4", caption: "My Directing Project", profile: PROFILES.p2 },
+  { video: "/tv-mp4/4.mp4", caption: "Product Videography", profile: PROFILES.p2 },
 ];
+
+/** Engagement numbers for 14 feed slots — cycled with POSTS below so the feed
+ *  still scrolls through 14 stops while only ever showing the 4 real posts. */
+const ENGAGEMENT: { likes: string; comments: string; shares: string }[] = [
+  { likes: "2M", comments: "6,965", shares: "344K" },
+  { likes: "1.4M", comments: "4,120", shares: "212K" },
+  { likes: "980K", comments: "2,310", shares: "97K" },
+  { likes: "1.1M", comments: "3,480", shares: "150K" },
+  { likes: "3.2M", comments: "9,801", shares: "512K" },
+  { likes: "760K", comments: "1,905", shares: "68K" },
+  { likes: "1.7M", comments: "5,220", shares: "290K" },
+  { likes: "2.6M", comments: "7,414", shares: "401K" },
+  { likes: "890K", comments: "2,077", shares: "88K" },
+  { likes: "1.9M", comments: "6,102", shares: "333K" },
+  { likes: "640K", comments: "1,556", shares: "52K" },
+  { likes: "1.3M", comments: "3,903", shares: "178K" },
+  { likes: "2.2M", comments: "6,640", shares: "365K" },
+  { likes: "4.1M", comments: "12,280", shares: "690K" },
+];
+
+/** One entry per reel — 14 of them, cycling through the 4 real posts. */
+export const REELS: {
+  caption: string;
+  likes: string;
+  comments: string;
+  shares: string;
+  video: string;
+  profile: { handle: string; verified: boolean; image: string };
+}[] = ENGAGEMENT.map((e, i) => ({ ...e, ...POSTS[i % POSTS.length] }));
 
 interface ReelsProps {
   /** Wall-clock shown in the status bar. */
@@ -50,11 +83,13 @@ interface ReelsProps {
 }
 
 /**
- * A reels-style feed that scrolls itself: 14 full-screen reels, each looping
- * the same clip, advancing every REEL_DURATION_MS with a soft slide. Header
- * and bottom nav stay fixed; the right-hand action rail and caption travel
- * with each reel. The feed wraps: after the last reel it slides to a clone of
- * the first, then snaps back to the real first with no visible jump.
+ * A reels-style feed that scrolls itself: 14 full-screen reels (cycling 4
+ * real clips/profiles), each looping its clip. Each reel's on-screen timer
+ * only starts once its video is actually playing (not black/loading), so
+ * the feed never scrolls into or away from an unfinished-loading clip.
+ * Header and bottom nav stay fixed; the right-hand action rail and caption
+ * travel with each reel. The feed wraps: after the last reel it slides to a
+ * clone of the first, then snaps back to the real first with no visible jump.
  *
  * Sizes use container-query units (cqw) so the whole UI scales with the
  * phone — the parent must set `container-type: inline-size`.
@@ -65,22 +100,27 @@ interface ReelsProps {
 
 /**
  * iOS-safe autoplaying video: sets `muted` as a real attribute, starts
- * playback explicitly, and shows a spinner until the first frame is playing.
+ * playback explicitly, shows a spinner until the first frame is playing,
+ * and reports "ready" upward via onReady once playback actually starts.
  */
-function ReelVideo({ src }: { src: string }) {
+function ReelVideo({ src, onReady }: { src: string; onReady?: () => void }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    setReady(false);
     el.muted = true;
     el.defaultMuted = true;
     el.setAttribute("muted", "");
     el.setAttribute("playsinline", "");
     el.setAttribute("webkit-playsinline", "");
     const start = () => el.play().catch(() => {});
-    const onPlaying = () => setReady(true);
+    const onPlaying = () => {
+      setReady(true);
+      onReady?.();
+    };
     start();
     el.addEventListener("loadedmetadata", start);
     el.addEventListener("canplay", start);
@@ -90,6 +130,7 @@ function ReelVideo({ src }: { src: string }) {
       el.removeEventListener("canplay", start);
       el.removeEventListener("playing", onPlaying);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
   return (
@@ -120,30 +161,72 @@ function ReelVideo({ src }: { src: string }) {
 
 export default function Reels({ clock = "21:46" }: ReelsProps) {
   const n = REELS.length;
-  const [tick, setTick] = useState(0); // counts up forever
+  const [index, setIndex] = useState(0);
   const [instant, setInstant] = useState(false);
 
+  // Always-current index, readable from timer callbacks without stale closures.
+  const indexRef = useRef(index);
   useEffect(() => {
-    const timer = setInterval(() => setTick((t) => t + 1), REEL_DURATION_MS);
-    return () => clearInterval(timer);
-  }, []);
+    indexRef.current = index;
+  }, [index]);
 
-  // Position on the track, always within 0..n. Ticks 1..n map to slides 1..n
-  // (n = the clone of the first reel); the next tick maps to 1 again, and so on.
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    if (tick === 0) return;
-    const next = ((tick - 1) % n) + 1;
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearAllTimers = () => {
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+    if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+    advanceTimerRef.current = null;
+    fallbackTimerRef.current = null;
+  };
+
+  const advance = () => {
     setInstant(false);
-    setIndex(next);
-    if (next !== n) return;
-    // Slid onto the clone: after the slide finishes, snap to the real first reel.
-    const snap = setTimeout(() => {
-      setInstant(true);
-      setIndex(0);
-    }, 750);
-    return () => clearTimeout(snap);
-  }, [tick, n]);
+    setIndex((prev) => prev + 1);
+  };
+
+  // Called once the CURRENT reel's video actually starts playing (or the
+  // fallback timeout elapses). Only then does the on-screen countdown to
+  // the next reel begin — so a slow-loading clip gets its full visible
+  // time instead of losing seconds to a black loading screen.
+  const handleReady = () => {
+    if (indexRef.current === n) return; // clone slide manages its own timing
+    if (advanceTimerRef.current) return; // already scheduled
+    if (fallbackTimerRef.current) {
+      clearTimeout(fallbackTimerRef.current);
+      fallbackTimerRef.current = null;
+    }
+    advanceTimerRef.current = setTimeout(advance, REEL_DURATION_MS);
+  };
+
+  // Only the reel matching the current index should be able to trigger the
+  // countdown — neighbours preloading in the background shouldn't.
+  const handleVideoReady = (videoIndex: number) => {
+    if (videoIndex !== indexRef.current) return;
+    handleReady();
+  };
+
+  useEffect(() => {
+    clearAllTimers();
+
+    if (index === n) {
+      // On the clone slide — just let the slide finish, then snap to the
+      // real first reel. This is a brief visual transition, not something
+      // the viewer "watches", so it isn't gated on video readiness.
+      const snap = setTimeout(() => {
+        setInstant(true);
+        setIndex(0);
+      }, 750);
+      return () => clearTimeout(snap);
+    }
+
+    // Safety net: if this reel's video never fires "playing", don't stall
+    // the feed forever — advance after READY_FALLBACK_MS regardless.
+    fallbackTimerRef.current = setTimeout(handleReady, READY_FALLBACK_MS);
+
+    return () => clearAllTimers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, n]);
 
   // Coming back from a background tab: don't replay a stale slide, just land.
   useEffect(() => {
@@ -171,7 +254,7 @@ export default function Reels({ clock = "21:46" }: ReelsProps) {
           const live = Math.abs(i - index) <= 1;
           return (
             <div key={i} className="relative h-full w-full overflow-hidden bg-black">
-              {live && <ReelVideo src={REEL_VIDEO_SRC} />}
+              {live && <ReelVideo src={reel.video} onReady={() => handleVideoReady(i)} />}
 
               {/* Legibility gradients */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-[28%] bg-gradient-to-b from-black/60 to-transparent" />
@@ -193,13 +276,24 @@ export default function Reels({ clock = "21:46" }: ReelsProps) {
                     className="grid place-items-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[0.5cqw]"
                     style={{ width: "10cqw", height: "10cqw" }}
                   >
-                    <span className="grid h-full w-full place-items-center rounded-full bg-black">
-                      <UserIcon style={{ width: "5.5cqw", height: "5.5cqw" }} />
+                    <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-black">
+                      {reel.profile.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={reel.profile.image}
+                          alt={reel.profile.handle}
+                          className="h-full w-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <UserIcon style={{ width: "5.5cqw", height: "5.5cqw" }} />
+                      )}
                     </span>
                   </span>
                   <span className="flex items-center gap-[1.5cqw] font-semibold" style={{ fontSize: "4cqw" }}>
-                    {HANDLE}
-                    <VerifiedIcon style={{ width: "3.8cqw", height: "3.8cqw", color: "#3897f0" }} />
+                    {reel.profile.handle}
+                    {reel.profile.verified && (
+                      <VerifiedIcon style={{ width: "3.8cqw", height: "3.8cqw", color: "#3897f0" }} />
+                    )}
                   </span>
                   <span
                     className="ml-[1cqw] rounded-[1.5cqw] border border-white/70 px-[2.8cqw] py-[1.1cqw] font-medium"

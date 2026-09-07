@@ -26,8 +26,11 @@ export default function Title({ className = "" }: TitleProps) {
 
   return (
     <h1
-            className={`select-none font-normal leading-[0.9] tracking-[0.02em] ${className}`}
-      style={{ fontSize: "clamp(2.75rem, 7.2vw, 8.5rem)" }}
+      className={`select-none leading-[0.9] tracking-[0.02em] ${className}`}
+      style={{
+        fontSize: "clamp(2.75rem, 7.2vw, 8.5rem)",
+        fontFamily: 'var(--font-display), "Jockey One", system-ui, sans-serif',
+      }}
       aria-label={TITLE}
     >
       {words.map((word, i) => {

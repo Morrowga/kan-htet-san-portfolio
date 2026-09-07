@@ -5,9 +5,9 @@ import { motion, useReducedMotion } from "framer-motion";
 
 /** The lines, in order. Add, remove or reword freely. */
 export const CAPTIONS = [
-  "A content creator",
-  "Over a hundred videos edited",
-  "Based in Chiang Mai",
+  "Visuals That Stop the Scroll",
+  "Editing Meets AI Innovation",
+  "Bold Stories Brought to Life",
 ];
 
 /** Seconds to wait before the first line (lets the title finish its reveal). */
@@ -43,7 +43,7 @@ export default function Captions({ className = "", textSize = "clamp(0.95rem, 1.
       className={`pointer-events-none select-none font-normal leading-snug tracking-[0] text-black/85 ${className}`}
       style={{
         fontSize: textSize,
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+        fontFamily: 'var(--font-display), "Jockey One", system-ui, sans-serif',
       }}
     >
       {CAPTIONS.map((line, i) => (

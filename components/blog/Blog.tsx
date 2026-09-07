@@ -1,4 +1,10 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Mail, MessageCircle } from "lucide-react";
 
 /**
  * Posts, in order. Images live in /public/blog/. Add an object to add a post.
@@ -11,33 +17,53 @@ export const POSTS: {
   image2: string;
 }[] = [
   {
-    title: "How I cut a 40-second reel",
+    title: "Hi, I'm Kan",
     intro:
-      "Every reel starts as a two-minute mess. This is the pass where it turns into forty seconds that actually hold attention — what gets cut, what gets moved, and why the hook always ends up somewhere I didn't plan.",
-    image1: "/blog/1.png",
+      "Over the past 7 years, I've worked at the intersection of video editing, visual pacing, and digital storytelling. I help brands, studios, and creators transform raw footage into captivating visual experiences.",
+    image1: "/blog/1.webp",
     body:
-      "The last ten seconds get the most work. They're the difference between a scroll-past and a rewatch, so I rebuild the ending three or four times before the timeline feels done.",
-    image2: "/blog/1.png",
+      "I stay at the forefront of post-production by blending traditional editing techniques with modern AI tools. Whether constructing high-converting social media campaigns, designing fluid visual transitions, or dialing in audio design, my goal is always the same: creating work that leaves a lasting impression.",
+    image2: "/blog/2.webp",
   },
   {
-    title: "Shooting Chiang Mai at 6am",
+    title: "Video Post-Production & Editing",
     intro:
-      "The light is gone by eight. Everything I shoot in the city happens in a two-hour window, so the day is planned backwards from sunrise: locations first, then how to move between them without wasting the glow.",
-    image1: "/blog/2.png",
+      "Non-Linear Editing (NLE): high-efficiency assembly, multi-camera editing, dynamic pacing, and visual continuity across short-form and long-form formats. Audio Engineering & Cleanup: dialogue polish, noise reduction, vocal balancing, and sound design using Adobe Audition and Descript.",
+    image1: "/blog/3.webp",
     body:
-      "Most of it is handheld. A gimbal looks smoother, but the small shake is what makes a phone clip feel like you were there — and that feeling is the whole point.",
-    image2: "/blog/2.png",
+      "Color & Pacing: fundamental color grading, shot matching, and mood styling to align with brand identity. Primary tools: Adobe Premiere Pro, CapCut, Descript, Adobe Audition.",
+    image2: "/blog/3.webp",
   },
   {
-    title: "Where AI actually helps an edit",
+    title: "AI & Next-Gen Visual Workflows",
     intro:
-      "Not in the cut. Generation tools earn their place in the gaps — a missing establishing shot, a B-roll transition I couldn't film, a texture behind a title. The edit still has to carry the story on its own.",
-    image1: "/blog/3.png",
+      "AI Video Generation & FX: crafting prompt-driven visual effects, stylistic transitions, and generative footage using Kling AI and Flow AI.",
+    image1: "/blog/3.webp",
     body:
-      "The test is simple: if a generated shot is the thing people remember, it was doing too much. It should disappear into the piece.",
-    image2: "/blog/3.png",
+      "Generative Visual Assets: designing and integrating custom AI imagery and JSON-based prompt structures for conceptual assets.",
+    image2: "/blog/3.webp",
+  },
+  {
+    title: "Strategy & Production",
+    intro:
+      "Content Strategy: concept development, scriptwriting, and promotional campaign structuring for short-form social formats — Instagram Reels, TikTok, YouTube Shorts.",
+    image1: "/blog/3.webp",
+    body:
+      "Cinematography & Framing: practical understanding of camera setups, lens selection, lighting, and composition.",
+    image2: "/blog/3.webp",
   },
 ];
+
+const DRIVE_URL =
+  "https://drive.google.com/drive/folders/14cjTsB-tRUb4ajiW_VlGpsGu-q-Ug7kx?usp=sharing";
+
+/** Contact details, shown as one inline row under the "About Me" heading. */
+const CONTACT = {
+  email: "kanhtetsan@gmail.com",
+  whatsappDisplay: "+660629295237",
+  whatsappNumber: "660629295237", // digits only, for the wa.me link
+  instagramHandle: "I_kan_do_it",
+};
 
 /**
  * Blog — one long column. Each post: title, intro, image, body, image.
@@ -47,8 +73,36 @@ export const POSTS: {
  * Blog — one column. Each post: title, intro, image, body, image.
  * No background of its own: it's laid over the hero's wall inside the
  * pinned frame, so it takes whatever is behind it.
+ *
+ * Also owns a bottom-right CTA pill (jelly-glass, matching Tools) that
+ * links to the Drive folder. It's hidden while the hero is in view and
+ * appears once the page has scrolled into the blog content. It's rendered
+ * through a portal to <body> so it stays truly fixed to the viewport even
+ * though this component lives inside a transformed/pinned ancestor.
  */
 export default function Blog() {
+  const [showCTA, setShowCTA] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    setMounted(true);
+
+    const threshold = () => window.innerHeight * 0.5;
+
+    const onScroll = () => {
+      setShowCTA(window.scrollY > threshold());
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   return (
     <div
       className="mx-auto max-w-[44rem] px-5 pb-[12svh] pt-[14svh] text-black lg:px-0 lg:pt-[16svh]"
@@ -56,7 +110,36 @@ export default function Blog() {
     >
       <h2 className="font-sans text-5xl leading-none tracking-[0.02em] lg:text-7xl">About Me</h2>
 
-      <div className="mt-14 space-y-24 lg:mt-20 lg:space-y-32">
+      {/* Contact row — email, WhatsApp, Instagram, all inline */}
+      <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-black/70 lg:text-base">
+        
+        <a href={`mailto:${CONTACT.email}`}
+          className="flex items-center gap-1.5 transition-colors hover:text-black"
+        >
+          <Mail size={16} strokeWidth={1.75} />
+          <span>{CONTACT.email}</span>
+        </a>
+        
+        <a href={`https://wa.me/${CONTACT.whatsappNumber}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 transition-colors hover:text-black"
+        >
+          <MessageCircle size={16} strokeWidth={1.75} />
+          <span>{CONTACT.whatsappDisplay}</span>
+        </a>
+        
+        <a href={`https://instagram.com/${CONTACT.instagramHandle}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 transition-colors hover:text-black"
+        >
+          <MessageCircle size={16} strokeWidth={1.75} />
+          <span>{CONTACT.instagramHandle}</span>
+        </a>
+      </div>
+
+      <div className="mt-14 space-y-24 lg:mt-8 lg:space-y-32">
         {POSTS.map((post) => (
           <article key={post.title} className="space-y-7">
             <h3 className="font-sans text-3xl leading-tight tracking-[0.02em] lg:text-4xl">{post.title}</h3>
@@ -67,6 +150,45 @@ export default function Blog() {
           </article>
         ))}
       </div>
+
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {showCTA && (
+              <motion.a
+                href={DRIVE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-6 right-6 z-[999] flex select-none items-center gap-2 overflow-hidden whitespace-nowrap"
+                style={{
+                  padding: "0.9rem 1.6rem",
+                  borderRadius: "999px",
+                  background:
+                    "linear-gradient(160deg, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0.13) 45%, rgba(255,255,255,0.06) 100%)",
+                  backdropFilter: "blur(18px) saturate(1.15)",
+                  WebkitBackdropFilter: "blur(18px) saturate(1.15)",
+                  boxShadow:
+                    "inset 0 1px 0 rgba(255,255,255,0.75), inset 0 -1px 0 rgba(0,0,0,0.08), inset 1px 0 0 rgba(255,255,255,0.35), 0 0.9vw 1.8vw -0.5vw rgba(0,0,0,0.35)",
+                  border: "1px solid rgba(255,255,255,0.28)",
+                  fontFamily:
+                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                  color: "#111",
+                }}
+                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.94 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.94 }}
+                transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
+                whileHover={reduceMotion ? undefined : { scale: 1.05 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.96 }}
+              >
+                <span>Projects</span>
+              </motion.a>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </div>
   );
 }

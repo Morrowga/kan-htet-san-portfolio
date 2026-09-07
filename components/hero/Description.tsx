@@ -3,7 +3,8 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 /** One-line description used on mobile in place of the three captions. */
-export const DESCRIPTION = "A content creator based in Chiang Mai, over a hundred videos edited.";
+export const DESCRIPTION =
+  "I create visuals that stop the scroll, blending editing with AI innovation to bring bold stories to life.";
 
 /** Seconds before it appears (after the title's reveal). */
 const START_DELAY = 1;
